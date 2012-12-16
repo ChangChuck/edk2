@@ -27,6 +27,8 @@ EblDumpMmu (
   IN CHAR8  **Argv
   )
 {
+  /* TODO : Implement this for AArch64. */
+
   AsciiPrint ("\nNot supported on this platform.\n");
 
   return EFI_SUCCESS;

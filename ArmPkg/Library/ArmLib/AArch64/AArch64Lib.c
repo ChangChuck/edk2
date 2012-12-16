@@ -195,6 +195,7 @@ AArch64DataCacheOperation (
   UINTN     SavedInterruptState;
 
   SavedInterruptState = ArmGetInterruptState ();
+  //FIXME: should disable the interrupts(IRQ and FIQ)
   ArmDisableInterrupts();
 
   AArch64AllDataCachesOperation (DataCacheOperation);
@@ -215,6 +216,7 @@ AArch64PoUDataCacheOperation (
   UINTN     SavedInterruptState;
 
   SavedInterruptState = ArmGetInterruptState ();
+  //FIXME: should disable the interrupts(IRQ and FIQ)
   ArmDisableInterrupts ();
 
   AArch64PerformPoUDataCacheOperation (DataCacheOperation);

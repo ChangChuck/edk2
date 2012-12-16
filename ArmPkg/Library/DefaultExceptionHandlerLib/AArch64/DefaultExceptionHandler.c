@@ -27,6 +27,8 @@
 #include <Protocol/DebugSupport.h>
 #include <Protocol/LoadedImage.h>
 
+// TODO - Convert this to AArch64 properly. Do full decode of error exceptions.
+
 EFI_DEBUG_IMAGE_INFO_TABLE_HEADER *gDebugImageTableHeader = NULL;
 
 STATIC CHAR8 *gExceptionTypeString[] = {

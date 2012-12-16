@@ -15,6 +15,8 @@
 #ifndef __ARM_LIB_PRIVATE_H__
 #define __ARM_LIB_PRIVATE_H__
 
+// AArch64 TODO: Check these are correct for our platform.
+
 #define CACHE_SIZE_4_KB             (3UL)
 #define CACHE_SIZE_8_KB             (4UL)
 #define CACHE_SIZE_16_KB            (5UL)

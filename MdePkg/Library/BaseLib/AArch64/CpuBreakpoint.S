@@ -32,6 +32,9 @@ GCC_ASM_EXPORT(CpuBreakpoint)
 #  VOID
 #  );
 #
+
+// TODO : Is this working for AArch64?
+
 ASM_PFX(CpuBreakpoint):
     svc   0xdbdb    // Superviser exception. Takes 16bit arg -> Armv7 had 'swi' here.
     ret

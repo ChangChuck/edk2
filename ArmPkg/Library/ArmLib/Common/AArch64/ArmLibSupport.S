@@ -69,6 +69,7 @@ ASM_PFX(ArmGetFiqState):
   csel    w0, w1, w0, ne
   ret
 
+/* TODO - Not same for EL1 and EL2. Which do we need here? */
 ASM_PFX(ArmWriteCpacr):
   msr     cpacr_el1, x0      // Coprocessor Access Control Reg (CPACR)
   ret
