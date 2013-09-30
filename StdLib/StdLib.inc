@@ -74,8 +74,9 @@
   NULL|ArmPkg/Library/CompilerIntrinsicsLib/CompilerIntrinsicsLib.inf
   NULL|StdLib/LibC/Softfloat/Softfloat.inf
 
-[LibraryClasses.AArch64]
-  NULL|ArmPkg/Library/CompilerIntrinsicsLib/CompilerIntrinsicsLib.inf
+[LibraryClasses.AARCH64]
+  # Use the softfloat library to cover missing hardfloat operations.
+  NULL|StdLib/LibC/Softfloat/Softfloat.inf
 
 [Components]
 # BaseLib and BaseMemoryLib need to be built with the /GL- switch when using the Microsoft
