@@ -726,6 +726,10 @@ WriteSections32 (
           case R_ARM_TLS_GD32:
           case R_ARM_TLS_LDM32:
           case R_ARM_TLS_IE32:
+          // These aren't actually supported, just here to force LLVM builds
+          // to complete.
+          case R_ARM_MOVW_ABS_NC:
+          case R_ARM_MOVT_ABS:
             // Thease are all PC-relative relocations and don't require modification
             // GCC does not seem to have the concept of a application that just needs to get relocated.
             break;
@@ -854,6 +858,10 @@ WriteRelocations32 (
             case R_ARM_TLS_GD32:
             case R_ARM_TLS_LDM32:
             case R_ARM_TLS_IE32:
+            // These aren't actually supported, just here to force LLVM builds
+            // to complete.
+            case R_ARM_MOVW_ABS_NC:
+            case R_ARM_MOVT_ABS:
               // Thease are all PC-relative relocations and don't require modification
               break;
 

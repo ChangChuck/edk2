@@ -6527,6 +6527,65 @@ RELEASE_XCODE5_X64_CC_FLAGS   = -target x86_64-pc-win32-macho -c    -Os       -W
 
 ####################################################################################
 #
+# Clang Support for building on Linux
+#
+####################################################################################
+*_LLVM_*_*_FAMILY            = GCC
+*_LLVM_*_*_BUILDRULEFAMILY   = LLVM
+
+*_LLVM_*_ASL_PATH          = /usr/bin/iasl
+
+*_LLVM_*_MAKE_PATH        = make
+*_LLVM_*_DSYMUTIL_PATH    = /usr/bin/dsymutil
+
+*_LLVM_*_CC_PATH      = ENV(CLANG_BIN)clang
+*_LLVM_*_DLINK_PATH   = ENV(CROSS_COMPILE)ld
+*_LLVM_*_SLINK_PATH   = ENV(CROSS_COMPILE)ar
+*_LLVM_*_ASM_PATH     = ENV(CROSS_COMPILE)as
+*_LLVM_*_PP_PATH      = ENV(CLANG_BIN)clang
+*_LLVM_*_VFRPP_PATH   = ENV(CLANG_BIN)clang
+*_LLVM_*_ASL_PATH     = iasl
+*_LLVM_*_ASLCC_PATH   = ENV(CLANG_BIN)clang
+*_LLVM_*_ASLPP_PATH   = ENV(CLANG_BIN)clang
+*_LLVM_*_ASLDLINK_PATH  = ENV(CROSS_COMPILE)ld
+
+####################
+# Clang Common
+####################
+
+DEFINE LLVM_ALL_CC_FLAGS = $(ARCHCC_FLAGS) $(PLATFORM_FLAGS) -include AutoGen.h -fshort-wchar -Wall -Werror -Wno-missing-braces -integrated-as -c
+
+  DEBUG_LLVM_*_ASM_FLAGS   = $(ARCHASM_FLAGS) $(PLATFORM_FLAGS) -mlittle-endian -g
+RELEASE_LLVM_*_ASM_FLAGS   = $(ARCHASM_FLAGS) $(PLATFORM_FLAGS) -mlittle-endian
+
+*_LLVM_*_PP_FLAGS        = $(ARCHCC_FLAGS) $(PLATFORM_FLAGS) -E -include $(DEST_DIR_DEBUG)/AutoGen.h
+
+#
+# Use default values, or override in DSC file
+#
+*_LLVM_*_PLATFORM_FLAGS    =
+*_LLVM_*_SLINK_FLAGS =
+
+####################
+# ARM definitions
+####################
+
+*_LLVM_ARM_DLINK_FLAGS =  $(ARCHDLINK_FLAGS) -Ttext=0x0 --oformat=elf32-littlearm --emit-relocs -nostdlib -u $(IMAGE_ENTRY_POINT) -e $(IMAGE_ENTRY_POINT) -Map $(DEST_DIR_DEBUG)/$(BASE_NAME).map
+
+  DEBUG_LLVM_ARM_CC_FLAGS   =  DEF(LLVM_ALL_CC_FLAGS) -target armv7-none-eabi -g -O0
+RELEASE_LLVM_ARM_CC_FLAGS   =  DEF(LLVM_ALL_CC_FLAGS) -target armv7-none-eabi
+
+####################
+# AARCH64 definitions
+####################
+
+*_LLVM_AARCH64_DLINK_FLAGS =  $(ARCHDLINK_FLAGS) -Ttext=0x0 --emit-relocs -nostdlib -u $(IMAGE_ENTRY_POINT) -e $(IMAGE_ENTRY_POINT) -Map $(DEST_DIR_DEBUG)/$(BASE_NAME).map
+
+  DEBUG_LLVM_AARCH64_CC_FLAGS   =  DEF(LLVM_ALL_CC_FLAGS) -target armv8-none-eabi -g -O0
+RELEASE_LLVM_AARCH64_CC_FLAGS   =  DEF(LLVM_ALL_CC_FLAGS) -target armv8-none-eabi
+
+####################################################################################
+#
 # RVCT Common
 #
 ####################################################################################
