@@ -25,10 +25,9 @@
 @echo off
 
 @REM
-@REM Set the WORKSPACE to the current working directory
+@REM Set the WORKSPACE to the directory of this file
 @REM
-pushd .
-cd %~dp0
+pushd  %~dp0
 
 if not defined WORKSPACE (
   goto SetWorkSpace
@@ -54,47 +53,25 @@ if /I "%1"=="/h" goto Usage
 if /I "%1"=="/?" goto Usage
 if /I "%1"=="/help" goto Usage
 
+if not defined EDK_TOOLS_PATH set EDK_TOOLS_PATH=%WORKSPACE%\BaseTools
+IF NOT EXIST "%EDK_TOOLS_PATH%\toolsetup.bat" goto BadBaseTools
+
 if /I not "%1"=="--nt32" goto no_nt32
 
 @REM Flag, --nt32 is set
 @REM The Nt32 Emluation Platform requires Microsoft Libraries
 @REM and headers to interface with Windows.
 
+call "%EDK_TOOLS_PATH%\get_vsvars.bat"
 if not defined VCINSTALLDIR (
-  if defined VS120COMNTOOLS (
-    call "%VS120COMNTOOLS%\vsvars32.bat"
-  ) else (
-    if defined VS110COMNTOOLS (
-      call "%VS110COMNTOOLS%\vsvars32.bat"
-    ) else (
-      if defined VS100COMNTOOLS (
-        call "%VS100COMNTOOLS%\vsvars32.bat"
-      ) else (
-        if defined VS90COMNTOOLS (
-          call "%VS90COMNTOOLS%\vsvars32.bat"
-        ) else (
-          if defined VS80COMNTOOLS (
-            call "%VS80COMNTOOLS%\vsvars32.bat"
-          ) else (
-            if defined VS71COMNTOOLS (
-              call "%VS71COMNTOOLS%\vsvars32.bat"
-            ) else (
-              echo.
-              echo !!! WARNING !!! Cannot find Visual Studio !!!
-              echo.
-            )
-          )
-        )
-      )
-    )
-  )
+  @echo.
+  @echo !!! WARNING !!! Cannot find Visual Studio !!!
+  @echo.
 )
 shift
 
 :no_nt32
 if /I "%1"=="NewBuild" shift
-set EDK_TOOLS_PATH=%WORKSPACE%\BaseTools
-IF NOT EXIST "%EDK_TOOLS_PATH%\toolsetup.bat" goto BadBaseTools
 call %EDK_TOOLS_PATH%\toolsetup.bat %*
 if /I "%1"=="Reconfig" shift
 goto check_cygwin
