@@ -165,6 +165,9 @@
   ## PL180 MMC/SD card controller
   gArmPlatformTokenSpaceGuid.PcdPL180SysMciRegAddress|0x10000048
   gArmPlatformTokenSpaceGuid.PcdPL180MciBaseAddress|0x10005000
+  
+  ## PL050 Keyboard/Mouse Interface
+  gArmPlatformTokenSpaceGuid.PcdPL050KeyboardBaseAddress|0x10006000
 
   #
   # ARM General Interrupt Controller

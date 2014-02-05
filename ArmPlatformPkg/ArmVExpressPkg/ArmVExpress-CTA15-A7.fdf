@@ -161,6 +161,11 @@ FvNameGuid         = 73dcb643-3862-4904-9076-a94af1890243
   INF EmbeddedPkg/Drivers/Lan9118Dxe/Lan9118Dxe.inf
 
   #
+  # PS/2 Keyboard support
+  #
+  INF ArmPlatformPkg/Drivers/Pl050KmiDxe/Pl050KmiDxe.inf
+
+  #
   # UEFI application
   #
   INF ShellBinPkg/UefiShell/UefiShell.inf

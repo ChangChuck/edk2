@@ -1,0 +1,79 @@
+## @file
+# Ps2 Keyboard UEFI Driver which produce gEfiSimpleTextInProtocolGuid and gEfiSimpleTextInputExProtocolGuid
+# protocol.
+# The keyboard type implemented follows IBM compatible PS2 protocol, with Scan Codes Set 1.
+#
+# This driver is a port of the Ps2KeyboardDxe from IntelFrameworkModulePkg,
+# which uses the Intel/IBM 8042 controller over ISA bus, to use a memory-mapped
+# ARM PL050.
+#
+# Copyright (c) 2006 - 2011, Intel Corporation. All rights reserved.<BR>
+# Copyright (c) 2014, ARM Limited. All rights reserved.
+#
+# This program and the accompanying materials
+# are licensed and made available under the terms and conditions of the BSD License
+# which accompanies this distribution.  The full text of the license may be found at
+# http://opensource.org/licenses/bsd-license.php
+#
+# THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+# WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = Pl050KmiDxe
+  FILE_GUID                      = 35827374-8dc0-11e3-bca7-6f89237ac8a1
+  MODULE_TYPE                    = UEFI_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = Pl050DxeEntryPoint
+
+#
+#  VALID_ARCHITECTURES           = ARM
+#  COMPONENT_NAME                = gPs2KeyboardComponentName;
+#  COMPONENT_NAME2               = gPs2KeyboardComponentName2;
+#
+
+[Sources]
+  ComponentName.c
+  Ps2Keyboard.h
+  Ps2KbdCtrller.c
+  Ps2KbdTextIn.c
+  Ps2Keyboard.c
+  Pl050KmiReg.h
+
+
+[Packages]
+  MdePkg/MdePkg.dec
+  ArmPlatformPkg/ArmPlatformPkg.dec
+  IntelFrameworkPkg/IntelFrameworkPkg.dec
+  IntelFrameworkModulePkg/IntelFrameworkModulePkg.dec
+
+[LibraryClasses]
+  MemoryAllocationLib
+  UefiRuntimeServicesTableLib
+  DebugLib
+  ReportStatusCodeLib
+  UefiBootServicesTableLib
+  UefiLib
+  UefiDriverEntryPoint
+  BaseLib
+  BaseMemoryLib
+  TimerLib
+  PcdLib
+
+[Protocols]
+  gEfiSimpleTextInProtocolGuid                  # PROTOCOL BY_START
+  gEfiSimpleTextInputExProtocolGuid             # PROTOCOL BY_START
+  gEfiDevicePathProtocolGuid                    # PROTOCOL TO_START
+
+[Pcd]
+  gArmPlatformTokenSpaceGuid.PcdPL050KeyboardBaseAddress
+
+# [Event]
+#   ##
+#   # Event will be signaled for WaitForKey event.
+#   #
+#   EVT_NOTIFY_WAIT                             ## PRODUCES
+#
