@@ -763,10 +763,12 @@ Ip4StartAutoConfig (
   IP4_SERVICE                    *IpSb;
   EFI_DHCP4_PROTOCOL             *Dhcp4;
   EFI_DHCP4_MODE_DATA            Dhcp4Mode;
-  EFI_DHCP4_PACKET_OPTION        *OptionList[1];
+  EFI_DHCP4_PACKET_OPTION        *OptionList[2];
   IP4_CONFIG2_DHCP4_OPTION       ParaList;
   EFI_STATUS                     Status;
- 
+  CHAR8                          Hostname[256];
+  UINTN                          HostnameSize;
+  EFI_DHCP4_PACKET_OPTION        *HostnameOption;
 
   IpSb = IP4_SERVICE_FROM_IP4_CONFIG2_INSTANCE (Instance);
 
@@ -849,7 +851,37 @@ Ip4StartAutoConfig (
   Dhcp4Mode.ConfigData.OptionCount = 1;
   Dhcp4Mode.ConfigData.OptionList  = OptionList;
 
+  HostnameSize   = 256;
+  HostnameOption = NULL;
+  Status = gRT->GetVariable (
+                  L"Hostname",
+                  &gEfiHostnameVariableGuid,
+                  NULL,
+                  &HostnameSize,
+                  &Hostname
+                  );
+  if (!EFI_ERROR (Status) && HostnameSize != 0) {
+    Dhcp4Mode.ConfigData.OptionCount = 2;
+
+    HostnameOption = AllocatePool (
+                       sizeof (EFI_DHCP4_PACKET_OPTION) - 1 + HostnameSize
+                       );
+    if (HostnameOption == NULL) {
+      return EFI_OUT_OF_RESOURCES;
+    }
+
+    HostnameOption->OpCode = DHCP_TAG_HOSTNAME;
+    HostnameOption->Length = (UINT8) HostnameSize;
+    CopyMem (HostnameOption->Data, Hostname, HostnameOption->Length);
+
+    OptionList[1] = HostnameOption;
+  }
+
   Status = Dhcp4->Configure (Dhcp4, &Dhcp4Mode.ConfigData);
+
+  if (HostnameOption) {
+    FreePool (HostnameOption);
+  }
 
   if (EFI_ERROR (Status)) {
     return Status;

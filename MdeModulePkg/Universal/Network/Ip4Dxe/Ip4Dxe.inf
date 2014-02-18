@@ -109,6 +109,7 @@
   ## SOMETIMES_PRODUCES ## GUID # HiiGetBrowserData     EFI_NIC_IP4_CONFIG_VARIABLE
   ## SOMETIMES_CONSUMES ## HII
   gIp4Config2NvDataGuid
+  gEfiHostnameVariableGuid      ## CONSUMES ## Guid
 
 [UserExtensions.TianoCore."ExtraFiles"]
   Ip4DxeExtra.uni

@@ -24,6 +24,7 @@
 #define DATA_ATTRIB_SIZE_FIXED              0x1
 #define DATA_ATTRIB_VOLATILE                0x2
 
+#define DHCP_TAG_HOSTNAME              12
 #define DHCP_TAG_PARA_LIST             55
 #define DHCP_TAG_NETMASK               1
 #define DHCP_TAG_ROUTER                3
