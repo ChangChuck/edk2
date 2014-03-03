@@ -28,41 +28,6 @@ MmcNotifyState (
 
 EFI_STATUS
 EFIAPI
-MmcGetCardStatus (
-  IN MMC_HOST_INSTANCE     *MmcHostInstance
-  )
-{
-  EFI_STATUS              Status;
-  UINT32                  Response[4];
-  UINTN                   CmdArg;
-  EFI_MMC_HOST_PROTOCOL   *MmcHost;
-
-  Status = EFI_SUCCESS;
-  MmcHost = MmcHostInstance->MmcHost;
-  CmdArg = 0;
-
-  if (MmcHost == NULL) {
-    return EFI_INVALID_PARAMETER;
-  }
-  if (MmcHostInstance->State != MmcHwInitializationState) {
-    //Get the Status of the card.
-    CmdArg = MmcHostInstance->CardInfo.RCA << 16;
-    Status = MmcHost->SendCommand (MmcHost, MMC_CMD13, CmdArg);
-    if (EFI_ERROR (Status)) {
-      DEBUG ((EFI_D_ERROR, "MmcGetCardStatus(MMC_CMD13): Error and Status = %r\n", Status));
-      return Status;
-    }
-
-    //Read Response
-    MmcHost->ReceiveResponse (MmcHost, MMC_RESPONSE_TYPE_R1, Response);
-    PrintResponseR1 (Response[0]);
-  }
-
-  return Status;
-}
-
-EFI_STATUS
-EFIAPI
 MmcReset (
   IN EFI_BLOCK_IO_PROTOCOL    *This,
   IN BOOLEAN                  ExtendedVerification
