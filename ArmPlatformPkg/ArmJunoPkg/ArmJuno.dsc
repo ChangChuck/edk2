@@ -288,3 +288,5 @@
   MdeModulePkg/Universal/DevicePathDxe/DevicePathDxe.inf
   ArmPlatformPkg/Bds/Bds.inf
 
+[Components.ARM]
+  ArmPkg/Extra/AArch64ToAArch32Shim/AArch64ToAArch32Shim.inf

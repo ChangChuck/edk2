@@ -49,7 +49,16 @@ NumBlocks     = 0xF0
 #
 ################################################################################
 
+!if $(ARCH) == "ARM"
+# For 32-bit ARM we add the shim to allow the transition from AArch64 to AArch32
+0x00000000|0x00008000
+gArmTokenSpaceGuid.PcdHypFvBaseAddress|gArmTokenSpaceGuid.PcdHypFvSize
+FV = FV_SHIM
+
+0x00008000|0x000E8000
+!else
 0x00000000|0x000F0000
+!endif
 gArmTokenSpaceGuid.PcdFvBaseAddress|gArmTokenSpaceGuid.PcdFvSize
 FV = FVMAIN_COMPACT
 
@@ -64,6 +73,31 @@ FV = FVMAIN_COMPACT
 # module statements.
 #
 ################################################################################
+
+#
+# AArch64 to AArch32 Shim
+#
+!if $(ARCH) == "ARM"
+[FV.FV_SHIM]
+FvAlignment        = 8
+ERASE_POLARITY     = 1
+MEMORY_MAPPED      = TRUE
+STICKY_WRITE       = TRUE
+LOCK_CAP           = TRUE
+LOCK_STATUS        = TRUE
+WRITE_DISABLED_CAP = TRUE
+WRITE_ENABLED_CAP  = TRUE
+WRITE_STATUS       = TRUE
+WRITE_LOCK_CAP     = TRUE
+WRITE_LOCK_STATUS  = TRUE
+READ_DISABLED_CAP  = TRUE
+READ_ENABLED_CAP   = TRUE
+READ_STATUS        = TRUE
+READ_LOCK_CAP      = TRUE
+READ_LOCK_STATUS   = TRUE
+
+  INF RuleOverride=SHIM ArmPkg/Extra/AArch64ToAArch32Shim/AArch64ToAArch32Shim.inf
+!endif
 
 [FV.FvMain]
 BlockSize          = 0x40
