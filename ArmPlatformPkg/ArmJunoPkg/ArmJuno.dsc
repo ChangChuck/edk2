@@ -42,6 +42,10 @@
   # USB Requirements
   UefiUsbLib|MdePkg/Library/UefiUsbLib/UefiUsbLib.inf
 
+!ifdef $(JUNO_MODEL)
+  LcdPlatformLib|ArmPlatformPkg/ArmJunoPkg/Library/HdLcdArmJunoLib/HdLcdArmJunoLib.inf
+!endif
+
 [LibraryClasses.ARM]
   ArmLib|ArmPkg/Library/ArmLib/ArmV7/ArmV7Lib.inf
 
@@ -65,6 +69,16 @@
   PcdLib|MdePkg/Library/DxePcdLib/DxePcdLib.inf
 
 [BuildOptions]
+!ifdef $(JUNO_EMULATOR)
+  *_*_*_ARCHCC_FLAGS = -DJUNO_EMULATOR=1
+  *_*_*_PP_FLAGS     = -DJUNO_EMULATOR=1
+!endif
+
+!ifdef $(JUNO_MODEL)
+  *_*_*_ARCHCC_FLAGS = -DJUNO_MODEL=1
+  *_*_*_PP_FLAGS     = -DJUNO_MODEL=1
+!endif
+
   *_*_*_PLATFORM_FLAGS == -I$(WORKSPACE)/ArmPlatformPkg/ArmVExpressPkg/Include -I$(WORKSPACE)/ArmPlatformPkg/ArmJunoPkg/Include
 
 ################################################################################
@@ -113,11 +127,25 @@
   ## PL011 - Serial Terminal
   gEfiMdeModulePkgTokenSpaceGuid.PcdSerialRegisterBase|0x7FF80000
   gEfiMdePkgTokenSpaceGuid.PcdUartDefaultBaudRate|115200
+!ifdef $(JUNO_EMULATOR)
+  gArmPlatformTokenSpaceGuid.PL011UartInteger|1
+  gArmPlatformTokenSpaceGuid.PL011UartFractional|0
+!else
   gArmPlatformTokenSpaceGuid.PL011UartInteger|4
   gArmPlatformTokenSpaceGuid.PL011UartFractional|0
+!endif
 
   ## PL031 RealTimeClock
   gArmPlatformTokenSpaceGuid.PcdPL031RtcBase|0x1C170000
+
+!ifdef $(JUNO_MODEL)
+  ## HdLcd
+  gArmPlatformTokenSpaceGuid.PcdArmHdLcdBase|0x7FF60000
+
+  ## PL180 MMC/SD card controller
+  gArmPlatformTokenSpaceGuid.PcdPL180SysMciRegAddress|0x1C010048
+  gArmPlatformTokenSpaceGuid.PcdPL180MciBaseAddress|0x1C050000
+!endif
 
   # LAN9118 Ethernet Driver
   gEmbeddedTokenSpaceGuid.PcdLan9118DxeBaseAddress|0x18000000
@@ -146,10 +174,28 @@
   #
   # ARM OS Loader
   #
+!ifdef $(JUNO_EMULATOR)
+  gArmPlatformTokenSpaceGuid.PcdDefaultBootDescription|L"Linux from DRAM"
+  gArmPlatformTokenSpaceGuid.PcdDefaultBootDevicePath|L"Fv(B73FE497-B92E-416E-8326-45AD0D270092)/LinuxLoader.efi"
+  gArmPlatformTokenSpaceGuid.PcdDefaultBootArgument|L"VenHw(30F57E4A-69CE-4FB7-B7A1-4C7CE49D57A6)/MemoryMapped(0x0,0x80080000,0x81000000) -c \"console=ttyAMA0,115200 earlycon=pl011,0x7ff80000 root=/dev/sda1 rootwait verbose debug\""
+
+  # On the Emulator we directly boot the first entry
+  gEfiMdePkgTokenSpaceGuid.PcdPlatformBootTimeOut|0
+!else
+!ifdef $(JUNO_MODEL)
+  gArmPlatformTokenSpaceGuid.PcdDefaultBootDescription|L"Linux from SemiHosting"
+  gArmPlatformTokenSpaceGuid.PcdDefaultBootDevicePath|L"Fv(B73FE497-B92E-416E-8326-45AD0D270092)/LinuxLoader.efi"
+  gArmPlatformTokenSpaceGuid.PcdDefaultBootArgument|L"VenHw(C5B9C74A-6D72-4719-99AB-C59F199091EB)/Image -f VenHw(C5B9C74A-6D72-4719-99AB-C59F199091EB)/initrd -c \"console=ttyAMA0,115200 earlycon=pl011,0x7ff80000 root=/dev/sda1 rootwait verbose debug\""
+
+  # We reduce the timeout to 2 seconds to reduce booting time on the model with cache state modelled
+  gEfiMdePkgTokenSpaceGuid.PcdPlatformBootTimeOut|2
+!else
   # Support the Linux EFI stub by default
   gArmPlatformTokenSpaceGuid.PcdDefaultBootDescription|L"EFI Linux from NOR Flash"
   gArmPlatformTokenSpaceGuid.PcdDefaultBootDevicePath|L"VenHw(E7223039-5836-41E1-B542-D7EC736C5E59)/Image"
   gArmPlatformTokenSpaceGuid.PcdDefaultBootArgument|L"console=ttyAMA0,115200 earlycon=pl011,0x7ff80000 root=/dev/sda1 rootwait verbose debug"
+!endif
+!endif
 
   # Use the serial console (ConIn & ConOut) and the Graphic driver (ConOut)
   gArmPlatformTokenSpaceGuid.PcdDefaultConOutPaths|L"VenHw(D3987D4B-971A-435F-8CAF-4967EB627241)/Uart(115200,8,N,1)/VenPcAnsi();VenHw(CE660500-824D-11E0-AC72-0002A5D5C51B)"
@@ -220,8 +266,12 @@
   MdeModulePkg/Universal/Console/TerminalDxe/TerminalDxe.inf
   EmbeddedPkg/SerialDxe/SerialDxe.inf
 
+!ifdef $(JUNO_EMULATOR)
+  MdeModulePkg/Universal/Variable/EmuRuntimeDxe/EmuVariableRuntimeDxe.inf
+!else
   MdeModulePkg/Universal/Variable/RuntimeDxe/VariableRuntimeDxe.inf
   MdeModulePkg/Universal/FaultTolerantWriteDxe/FaultTolerantWriteDxe.inf
+!endif
 
   #
   # ACPI Support
@@ -240,6 +290,19 @@
   # Semi-hosting filesystem
   #
   ArmPkg/Filesystem/SemihostFs/SemihostFs.inf
+
+!ifdef $(JUNO_MODEL)
+  #
+  # Graphic Output Protocol
+  #
+  ArmPlatformPkg/Drivers/LcdGraphicsOutputDxe/HdLcdGraphicsOutputDxe.inf
+
+  #
+  # Multimedia Card Interface
+  #
+  EmbeddedPkg/Universal/MmcDxe/MmcDxe.inf
+  ArmPlatformPkg/Drivers/PL180MciDxe/PL180MciDxe.inf
+!endif
 
   #
   # FAT filesystem + GPT/MBR partitioning

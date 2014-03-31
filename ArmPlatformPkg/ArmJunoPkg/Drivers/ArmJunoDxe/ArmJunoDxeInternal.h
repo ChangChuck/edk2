@@ -29,10 +29,17 @@
 
 #include <IndustryStandard/Acpi.h>
 
+#ifdef JUNO_EMULATOR
+EFI_STATUS
+InitDramBlockIo (
+  VOID
+  );
+#else
 EFI_STATUS
 PciEmulationEntryPoint (
   VOID
   );
+#endif
 
 /**
  * Callback called when ACPI Protocol is installed

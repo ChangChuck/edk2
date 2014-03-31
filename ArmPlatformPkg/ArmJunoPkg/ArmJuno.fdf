@@ -139,8 +139,12 @@ FvNameGuid         = B73FE497-B92E-416e-8326-45AD0D270092
   INF EmbeddedPkg/RealTimeClockRuntimeDxe/RealTimeClockRuntimeDxe.inf
   INF EmbeddedPkg/MetronomeDxe/MetronomeDxe.inf
 
+!ifdef $(JUNO_EMULATOR)
+  INF MdeModulePkg/Universal/Variable/EmuRuntimeDxe/EmuVariableRuntimeDxe.inf
+!else
   INF MdeModulePkg/Universal/Variable/RuntimeDxe/VariableRuntimeDxe.inf
   INF MdeModulePkg/Universal/FaultTolerantWriteDxe/FaultTolerantWriteDxe.inf
+!endif
 
   #
   # ACPI Support
@@ -163,11 +167,25 @@ FvNameGuid         = B73FE497-B92E-416e-8326-45AD0D270092
   INF ArmPkg/Drivers/TimerDxe/TimerDxe.inf
   INF ArmPkg/Drivers/GenericWatchdogDxe/GenericWatchdogDxe.inf
 
+!ifndef $(JUNO_EMULATOR)
   # NOR Flash driver
   INF ArmPlatformPkg/Drivers/NorFlashDxe/NorFlashDxe.inf
 
+!ifdef $(JUNO_MODEL)
+  # Multimedia Card Interface
+  INF EmbeddedPkg/Universal/MmcDxe/MmcDxe.inf
+  INF ArmPlatformPkg/Drivers/PL180MciDxe/PL180MciDxe.inf
+
+  # Graphic Output Protocol
+  INF ArmPlatformPkg/Drivers/LcdGraphicsOutputDxe/HdLcdGraphicsOutputDxe.inf
+
+  # Semi-hosting filesystem
+  INF ArmPkg/Filesystem/SemihostFs/SemihostFs.inf
+!endif
+
   # Versatile Express FileSystem
   INF ArmPlatformPkg/FileSystem/BootMonFs/BootMonFs.inf
+!endif
 
   #
   # FAT filesystem + GPT/MBR partitioning
@@ -218,7 +236,9 @@ FvNameGuid         = B73FE497-B92E-416e-8326-45AD0D270092
   INF MdeModulePkg/Universal/Network/Udp4Dxe/Udp4Dxe.inf
   INF MdeModulePkg/Universal/Network/UefiPxeBcDxe/UefiPxeBcDxe.inf
   INF MdeModulePkg/Universal/Network/IScsiDxe/IScsiDxe.inf
+!ifndef JUNO_MODEL
   INF EmbeddedPkg/Drivers/Lan9118Dxe/Lan9118Dxe.inf
+!endif
 
   #
   # UEFI applications

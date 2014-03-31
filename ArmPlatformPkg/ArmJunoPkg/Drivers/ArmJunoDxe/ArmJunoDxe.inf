@@ -23,6 +23,7 @@
   ArmJunoDxe.c
   PciEmulation.c
   PciRootBridgeIo.c
+  DramBlockIo.c
 
 [Packages]
   ArmPkg/ArmPkg.dec
@@ -77,6 +78,9 @@
   gArmJunoTokenSpaceGuid.PcdJunoR0FdtDevicePath
   gArmJunoTokenSpaceGuid.PcdJunoR1A57x2FdtDevicePath
   gArmJunoTokenSpaceGuid.PcdJunoR1A57x2A53x4FdtDevicePath
+
+  gArmJunoTokenSpaceGuid.PcdEmulatorFdtDevicePath
+  gArmJunoTokenSpaceGuid.PcdModelFdtDevicePath
 
   gArmPlatformTokenSpaceGuid.PcdDefaultBootDevicePath
   gArmPlatformTokenSpaceGuid.PcdDefaultBootArgument

@@ -180,6 +180,7 @@ OnEndOfDxe (
   IN VOID       *Context
   )
 {
+#if !defined(JUNO_MODEL)
   EFI_DEVICE_PATH_PROTOCOL* PciRootComplexDevicePath;
   EFI_HANDLE                Handle;
   EFI_STATUS                Status;
@@ -197,6 +198,7 @@ OnEndOfDxe (
 
   Status = gBS->ConnectController (Handle, NULL, PciRootComplexDevicePath, FALSE);
   ASSERT_EFI_ERROR (Status);
+#endif
 }
 
 STATIC
@@ -229,14 +231,22 @@ ArmJunoEntryPoint (
   CHAR16                *TextDevicePath;
   UINTN                 TextDevicePathSize;
   VOID                  *Buffer;
+#if !defined(JUNO_EMULATOR) && !defined(JUNO_MODEL)
   UINT32                Midr;
   UINT32                CpuType;
   UINT32                CpuRev;
+#endif
   JUNO_REVISION         JunoRevision;
   EFI_EVENT             EndOfDxeEvent;
 
   JunoRevision = UNKNOWN;
+
+#ifdef JUNO_EMULATOR
+  Status = InitDramBlockIo ();
+  ASSERT_EFI_ERROR (Status);
+#else
   Status = PciEmulationEntryPoint ();
+#endif
   if (EFI_ERROR (Status)) {
     return Status;
   }
@@ -300,6 +310,7 @@ ArmJunoEntryPoint (
     DEBUG ((EFI_D_ERROR, "ArmJunoDxe: Failed to install ShellDynCmdRunAxf\n"));
   }
 
+#if !defined(JUNO_EMULATOR) && !defined(JUNO_MODEL)
   //
   // We detect whether we are running on a Juno r0 or Juno r1 board at
   // runtime by checking the value of the MIDR register.
@@ -325,6 +336,7 @@ ArmJunoEntryPoint (
       JunoRevision = JUNO_R1;
     }
   }
+#endif // #if !defined(JUNO_EMULATOR) && !defined(JUNO_MODEL)
 
   //
   // Try to install the ACPI Tables
@@ -362,6 +374,12 @@ ArmJunoEntryPoint (
   //
   // Set up the device path to the FDT.
   //
+#ifdef JUNO_EMULATOR
+  TextDevicePath = (CHAR16*)FixedPcdGetPtr (PcdEmulatorFdtDevicePath);
+#else
+#ifdef JUNO_MODEL
+  TextDevicePath = (CHAR16*)FixedPcdGetPtr (PcdModelFdtDevicePath);
+#else
   switch (JunoRevision) {
   case JUNO_R0:
     TextDevicePath = (CHAR16*)FixedPcdGetPtr (PcdJunoR0FdtDevicePath);
@@ -374,6 +392,8 @@ ArmJunoEntryPoint (
   default:
     TextDevicePath = NULL;
   }
+#endif // #ifdef JUNO_EMULATOR
+#endif // #ifdef JUNO_MODEL
 
   if (TextDevicePath != NULL) {
     TextDevicePathSize = StrSize (TextDevicePath);
