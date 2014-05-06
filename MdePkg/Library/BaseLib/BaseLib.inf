@@ -487,13 +487,13 @@
   Arm/Unaligned.c
   Math64.c
 
-  AArch64/MemoryFence.S             | GCC
-  AArch64/SwitchStack.S             | GCC
-  AArch64/EnableInterrupts.S        | GCC
-  AArch64/DisableInterrupts.S       | GCC
-  AArch64/GetInterruptsState.S      | GCC
-  AArch64/SetJumpLongJump.S         | GCC
-  AArch64/CpuBreakpoint.S           | GCC
+  AArch64/MemoryFence.S
+  AArch64/SwitchStack.S
+  AArch64/EnableInterrupts.S
+  AArch64/DisableInterrupts.S
+  AArch64/GetInterruptsState.S
+  AArch64/SetJumpLongJump.S
+  AArch64/CpuBreakpoint.S
 
 [Packages]
   MdePkg/MdePkg.dec
