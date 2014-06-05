@@ -72,6 +72,7 @@
 
 [LibraryClasses.ARM]
   NULL|ArmPkg/Library/CompilerIntrinsicsLib/CompilerIntrinsicsLib.inf
+  NULL|StdLib/LibC/Softfloat/Softfloat.inf
 
 [LibraryClasses.AArch64]
   NULL|ArmPkg/Library/CompilerIntrinsicsLib/CompilerIntrinsicsLib.inf
