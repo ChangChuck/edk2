@@ -21,6 +21,7 @@
 #include <Guid/EventGroup.h>
 #include <Guid/GlobalVariable.h>
 
+#include <Library/ArmMpServicesAcpiPsciLib.h>
 #include <Library/ArmShellCmdLib.h>
 #include <Library/AcpiLib.h>
 #include <Library/BaseMemoryLib.h>
@@ -558,6 +559,8 @@ SetJunoR1DefaultBootEntries (
                   sizeof (BootOrder),
                   BootOrder
                   );
+
+  Status = ArmMpServicesAcpiPsciInit ();
 
 Error:
   if (BootDevicePath != NULL) {

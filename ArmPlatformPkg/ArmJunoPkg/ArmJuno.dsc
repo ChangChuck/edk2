@@ -39,6 +39,8 @@
 
   TimerLib|ArmPkg/Library/ArmArchTimerLib/ArmArchTimerLib.inf
 
+  ArmMpServicesAcpiPsciLib|ArmPkg/Library/ArmMpServicesAcpiPsciLib/ArmMpServicesAcpiPsciLib.inf
+
   # USB Requirements
   UefiUsbLib|MdePkg/Library/UefiUsbLib/UefiUsbLib.inf
 

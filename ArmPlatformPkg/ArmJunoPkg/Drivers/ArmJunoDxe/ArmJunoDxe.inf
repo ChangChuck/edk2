@@ -37,6 +37,7 @@
 [LibraryClasses]
   AcpiLib
   ArmLib
+  ArmMpServicesAcpiPsciLib
   ArmShellCmdRunAxfLib
   BaseMemoryLib
   BdsLib
