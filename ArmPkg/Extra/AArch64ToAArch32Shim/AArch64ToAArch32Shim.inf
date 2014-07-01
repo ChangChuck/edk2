@@ -1,0 +1,33 @@
+## @file
+#
+# Copyright (c) 2014, ARM Ltd. All rights reserved.<BR>
+#
+# This program and the accompanying materials
+# are licensed and made available under the terms and conditions of the BSD License
+# which accompanies this distribution.  The full text of the license may be found at
+# http://opensource.org/licenses/bsd-license.php
+#
+# THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+# WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+[Defines]
+  INF_VERSION                    = 0x00010016
+  BASE_NAME                      = AArch64ToAArch32Shim
+  FILE_GUID                      = 3348b257-4154-45d2-b889-3cf18b377366
+  MODULE_TYPE                    = SEC
+  VERSION_STRING                 = 1.0
+  CUSTOM_MAKEFILE                = GCC|GNUmakefile
+
+[Sources]
+  AArch64ToAArch32Shim.S
+  AArch64ToAArch32Trap.c
+  AArch64ToAArch32Vector.S
+
+[Packages]
+  ArmPkg/ArmPkg.dec
+  ArmPlatformPkg/ArmPlatformPkg.dec
+
+[FixedPcd]
+  gArmTokenSpaceGuid.PcdFvBaseAddress
+  gArmPlatformTokenSpaceGuid.PcdClusterCount
