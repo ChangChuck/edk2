@@ -16,6 +16,7 @@
 #include <Uefi.h>
 #include <Chipset/AArch64.h>
 #include <Library/BaseMemoryLib.h>
+#include <Library/CacheMaintenanceLib.h>
 #include <Library/MemoryAllocationLib.h>
 #include <Library/ArmLib.h>
 #include <Library/BaseLib.h>
@@ -510,14 +511,9 @@ SetMemoryAttributes (
     return Status;
   }
 
-  // Flush d-cache so descriptors make it back to uncached memory for subsequent table walks
-  // flush and invalidate pages
-  ArmCleanInvalidateDataCache ();
-
-  ArmInvalidateInstructionCache ();
-
-  // Invalidate all TLB entries so changes are synced
-  ArmInvalidateTlb ();
+  // Invalidate instructions & data cache range of the region
+  InvalidateInstructionCacheRange ((VOID*)BaseAddress, Length);
+  WriteBackInvalidateDataCacheRange ((VOID*)BaseAddress, Length);
 
   return RETURN_SUCCESS;
 }

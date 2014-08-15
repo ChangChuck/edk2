@@ -684,15 +684,9 @@ SetMemoryAttributes (
     Status = UpdatePageEntries (BaseAddress, Length, Attributes, VirtualMask);
   }
 
-  // Flush d-cache so descriptors make it back to uncached memory for subsequent table walks
-  // flush and invalidate pages
-  //TODO: Do we really need to invalidate the caches everytime we change the memory attributes ?
-  ArmCleanInvalidateDataCache ();
-
-  ArmInvalidateInstructionCache ();
-
-  // Invalidate all TLB entries so changes are synced
-  ArmInvalidateTlb ();
+  // Invalidate instructions & data cache range of the region
+  InvalidateInstructionCacheRange ((VOID*)BaseAddress, Length);
+  WriteBackInvalidateDataCacheRange ((VOID*)BaseAddress, Length);
 
   return Status;
 }

@@ -37,6 +37,7 @@
   MdePkg/MdePkg.dec
 
 [LibraryClasses]
+  CacheMaintenanceLib
   MemoryAllocationLib
 
 [Protocols]
