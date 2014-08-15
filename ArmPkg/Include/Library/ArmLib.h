@@ -259,6 +259,12 @@ ArmInvalidateInstructionCache (
 
 VOID
 EFIAPI
+ArmInvalidateInstructionCacheEntryByMVA (
+  IN  UINTN   Address
+  );
+
+VOID
+EFIAPI
 ArmInvalidateDataCacheEntryByMVA (
   IN  UINTN   Address
   );

@@ -18,6 +18,7 @@ GCC_ASM_EXPORT(ArmCleanInvalidateDataCache)
 GCC_ASM_EXPORT(ArmCleanDataCache)
 GCC_ASM_EXPORT(ArmInvalidateDataCache)
 GCC_ASM_EXPORT(ArmInvalidateInstructionCache)
+GCC_ASM_EXPORT(ArmInvalidateInstructionCacheEntryByMVA)
 GCC_ASM_EXPORT(ArmInvalidateDataCacheEntryByMVA)
 GCC_ASM_EXPORT(ArmCleanDataCacheEntryByMVA)
 GCC_ASM_EXPORT(ArmCleanInvalidateDataCacheEntryByMVA)
@@ -39,6 +40,10 @@ GCC_ASM_EXPORT(ArmInstructionSynchronizationBarrier)
 .set IC_ON, (1<<12)
 
 #------------------------------------------------------------------------------
+
+ASM_PFX(ArmInvalidateInstructionCacheEntryByMVA):
+  mcr     p15, 0, r0, c7, c5, 1   @invalidate single data instruction line
+  bx      lr
 
 ASM_PFX(ArmInvalidateDataCacheEntryByMVA):
   mcr     p15, 0, r0, c7, c6, 1   @ invalidate single data cache line

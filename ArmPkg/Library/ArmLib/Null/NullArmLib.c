@@ -48,6 +48,16 @@ ArmInvalidateInstructionCache (
 
 VOID
 EFIAPI
+ArmInvalidateInstructionCacheEntryByMVA (
+  IN  UINTN   Address
+  )
+{
+  // Do not run code using the Null cache library.
+  ASSERT(FALSE);
+}
+
+VOID
+EFIAPI
 ArmInvalidateDataCacheEntryByMVA (
   IN  UINTN Address
   )

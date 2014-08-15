@@ -17,6 +17,7 @@
 .align 2
 
 GCC_ASM_EXPORT (ArmInvalidateInstructionCache)
+GCC_ASM_EXPORT(ArmInvalidateInstructionCacheEntryByMVA)
 GCC_ASM_EXPORT (ArmInvalidateDataCacheEntryByMVA)
 GCC_ASM_EXPORT (ArmCleanDataCacheEntryByMVA)
 GCC_ASM_EXPORT (ArmCleanInvalidateDataCacheEntryByMVA)
@@ -60,6 +61,10 @@ GCC_ASM_EXPORT (ArmReadIdPfr1)
 .set CTRL_B_BIT,  (1 << 7)
 .set CTRL_I_BIT,  (1 << 12)
 
+
+ASM_PFX(ArmInvalidateInstructionCacheEntryByMVA):
+  mcr     p15, 0, r0, c7, c5, 1   @invalidate single data instruction line
+  bx      lr
 
 ASM_PFX(ArmInvalidateDataCacheEntryByMVA):
   mcr     p15, 0, r0, c7, c6, 1   @invalidate single data cache line
