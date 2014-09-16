@@ -3359,6 +3359,8 @@ Returns:
     // Relocation doesn't exist
     //
     if (ImageContext.RelocationsStripped) {
+      // Set the Te Base address
+      TEImageHeader->ImageBase = NewPe32BaseAddress;
       Warning (NULL, 0, 0, "Invalid", "The file %s has no .reloc section.", FileName);
       continue;
     }
