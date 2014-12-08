@@ -69,17 +69,20 @@
   PcdLib|MdePkg/Library/DxePcdLib/DxePcdLib.inf
 
 [BuildOptions]
+  RVCT:*_*_ARM_PLATFORM_FLAGS = --cpu Cortex-A15
+  GCC:*_*_ARM_PLATFORM_FLAGS  = -mcpu=cortex-a15
+
 !ifdef $(JUNO_EMULATOR)
-  *_*_*_ARCHCC_FLAGS = -DJUNO_EMULATOR=1
-  *_*_*_PP_FLAGS     = -DJUNO_EMULATOR=1
+  *_*_*_PLATFORM_FLAGS = -DJUNO_EMULATOR=1
+  *_*_*_PP_FLAGS       = -DJUNO_EMULATOR=1
 !endif
 
 !ifdef $(JUNO_MODEL)
-  *_*_*_ARCHCC_FLAGS = -DJUNO_MODEL=1
-  *_*_*_PP_FLAGS     = -DJUNO_MODEL=1
+  *_*_*_PLATFORM_FLAGS = -DJUNO_MODEL=1
+  *_*_*_PP_FLAGS       = -DJUNO_MODEL=1
 !endif
 
-  *_*_*_PLATFORM_FLAGS == -I$(WORKSPACE)/ArmPlatformPkg/ArmVExpressPkg/Include -I$(WORKSPACE)/ArmPlatformPkg/ArmJunoPkg/Include
+  *_*_*_PLATFORM_FLAGS = -I$(WORKSPACE)/ArmPlatformPkg/ArmVExpressPkg/Include -I$(WORKSPACE)/ArmPlatformPkg/ArmJunoPkg/Include
 
 ################################################################################
 #
