@@ -12,10 +12,17 @@
 #
 ##
 
+ifdef GCC49_AARCH64_PREFIX
+PP  = $(GCC49_AARCH64_PREFIX)gcc -E
+ASM = $(GCC49_AARCH64_PREFIX)gcc
+CC  = $(GCC49_AARCH64_PREFIX)gcc
+LD  = $(GCC49_AARCH64_PREFIX)ld
+else
 PP  = $(GCC48_AARCH64_PREFIX)gcc -E
 ASM = $(GCC48_AARCH64_PREFIX)gcc
 CC  = $(GCC48_AARCH64_PREFIX)gcc
 LD  = $(GCC48_AARCH64_PREFIX)ld
+endif
 
 PP_FLAGS  = -include $(DEST_DIR_DEBUG)/AutoGen.h
 ASM_FLAGS = -c -x assembler -g -imacros $(DEST_DIR_DEBUG)/AutoGen.h
