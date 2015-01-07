@@ -103,6 +103,13 @@ typedef enum {
 // Bit Mask for
 #define ARM_GIC_ICCIAR_ACKINTID                 0x3FF
 
+// GICD_ICFGR registers related mnemonics
+#define ARM_GIC_ICDICFR_NB_BITS                 32
+#define ARM_GIC_ICDICFR_NB_BITS_PER_INTERRUPT   2
+#define ARM_GIC_ICDICFR_NB_INTERRUPTS           (ARM_GIC_ICDICFR_NB_BITS / ARM_GIC_ICDICFR_NB_BITS_PER_INTERRUPT)
+#define ARM_GIC_ICDICFR_EDGE_TRIGGERED          0x2
+
+
 ARM_GIC_ARCH_REVISION
 EFIAPI
 ArmGicGetSupportedArchRevision (

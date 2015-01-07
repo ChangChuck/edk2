@@ -36,6 +36,7 @@
 
 [LibraryClasses]
   AcpiLib
+  ArmGicLib
   ArmLib
   ArmMpServicesAcpiPsciLib
   ArmShellCmdRunAxfLib
@@ -67,8 +68,11 @@
   gEfiAcpiTableProtocolGuid
 
 [FixedPcd]
+  gArmTokenSpaceGuid.PcdGicDistributorBase
+
   gArmTokenSpaceGuid.PcdSystemMemoryBase
   gArmTokenSpaceGuid.PcdSystemMemorySize
+  gArmTokenSpaceGuid.PcdGenericWatchdogEl2IntrNum
 
   gArmTokenSpaceGuid.PcdHypFvBaseAddress
   gArmTokenSpaceGuid.PcdHypFvSize

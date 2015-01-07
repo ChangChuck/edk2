@@ -21,6 +21,7 @@
 #include <Guid/EventGroup.h>
 #include <Guid/GlobalVariable.h>
 
+#include <Library/ArmGicLib.h>
 #include <Library/ArmMpServicesAcpiPsciLib.h>
 #include <Library/ArmShellCmdLib.h>
 #include <Library/AcpiLib.h>
@@ -239,6 +240,7 @@ ArmJunoEntryPoint (
 #endif
   JUNO_REVISION         JunoRevision;
   EFI_EVENT             EndOfDxeEvent;
+  UINT32               *GicdIcfgrRegAdr;
 
   JunoRevision = UNKNOWN;
 
@@ -251,6 +253,22 @@ ArmJunoEntryPoint (
   if (EFI_ERROR (Status)) {
     return Status;
   }
+
+  //
+  // The EL2 generic watchdog interrupt on Juno is edge-triggered and not
+  // level-sensitive as set by default after reset. The interrupt is thus
+  // configured once for all here as edge-triggered. This is set up in the
+  // GICD_ICFGRn where n = "PcdGenericWatchdogEl2IntrNum" /
+  // ARM_GIC_ICDICFR_NB_INTERRUPTS as there are ARM_GIC_ICDICFR_NB_INTERRUPTS
+  // configured in each GICD_ICFGRn registers.
+  //
+  GicdIcfgrRegAdr  = (UINT32*)((FixedPcdGet32 (PcdGicDistributorBase)) +
+                               ARM_GIC_ICDICFR                           ) +
+                     ((FixedPcdGet32 (PcdGenericWatchdogEl2IntrNum)) /
+                      ARM_GIC_ICDICFR_NB_INTERRUPTS                    );
+  *GicdIcfgrRegAdr |= ARM_GIC_ICDICFR_EDGE_TRIGGERED                                                 <<
+                      ((FixedPcdGet32 (PcdGenericWatchdogEl2IntrNum) % ARM_GIC_ICDICFR_NB_INTERRUPTS) *
+                       ARM_GIC_ICDICFR_NB_BITS_PER_INTERRUPT                                         );
 
   //
   // If a hypervisor has been declared then we need to make sure its region is protected at runtime
