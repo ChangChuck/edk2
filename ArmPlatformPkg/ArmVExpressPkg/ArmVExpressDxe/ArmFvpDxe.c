@@ -19,6 +19,7 @@
 #include <Library/MemoryAllocationLib.h>
 
 #define ARM_FVP_BASE_VIRTIO_BLOCK_BASE    0x1c130000
+STATIC CONST CHAR16 *mFdtFallbackName = L"fdt.dtb";
 
 #pragma pack(1)
 typedef struct {
@@ -61,28 +62,52 @@ ArmFvpInitialise (
   IN EFI_SYSTEM_TABLE   *SystemTable
   )
 {
-  CONST ARM_VEXPRESS_PLATFORM* Platform;
   EFI_STATUS                   Status;
-  CHAR16                       *TextDevicePath;
+  CONST ARM_VEXPRESS_PLATFORM  *Platform;
+  BOOLEAN                      NeedFallback;
+  UINTN                        TextDevicePathBaseSize;
   UINTN                        TextDevicePathSize;
+  CHAR16                       *TextDevicePath;
   VOID                         *Buffer;
 
-  Status = gBS->InstallProtocolInterface (&ImageHandle,
-                 &gEfiDevicePathProtocolGuid, EFI_NATIVE_INTERFACE,
-                 &mVirtioBlockDevicePath);
+  Status = gBS->InstallProtocolInterface (
+                  &ImageHandle,
+                  &gEfiDevicePathProtocolGuid, EFI_NATIVE_INTERFACE,
+                  &mVirtioBlockDevicePath
+                  );
   if (EFI_ERROR (Status)) {
     return Status;
   }
 
   Status = ArmVExpressGetPlatform (&Platform);
   if (!EFI_ERROR (Status)) {
-    TextDevicePathSize  = StrSize ((CHAR16*)PcdGetPtr (PcdFvpFdtDevicePathsBase)) - sizeof (CHAR16);
-    TextDevicePathSize += StrSize (Platform->FdtName);
+    //
+    // In the case of the FVP base and foundation platforms, two default
+    // text device paths for the FDT are defined. The first one, like every
+    // other platform, ends with a file name that identifies the platform. The
+    // second one ends with the fallback file name "fdt.dtb" for historical
+    // backward compatibility reasons.
+    //
+    NeedFallback = (Platform->Id == ARM_FVP_BASE) ||
+                   (Platform->Id == ARM_FVP_FOUNDATION);
+
+    TextDevicePathBaseSize = StrSize ((CHAR16*)PcdGetPtr (PcdFvpFdtDevicePathsBase)) - sizeof (CHAR16);
+    TextDevicePathSize     = TextDevicePathBaseSize + StrSize (Platform->FdtName);
+    if (NeedFallback) {
+      TextDevicePathSize += TextDevicePathBaseSize + StrSize (mFdtFallbackName);
+    }
 
     TextDevicePath = AllocatePool (TextDevicePathSize);
     if (TextDevicePath != NULL) {
       StrCpy (TextDevicePath, ((CHAR16*)PcdGetPtr (PcdFvpFdtDevicePathsBase)));
       StrCat (TextDevicePath, Platform->FdtName);
+
+      if (NeedFallback) {
+        StrCat (TextDevicePath, L";");
+        StrCat (TextDevicePath, ((CHAR16*)PcdGetPtr (PcdFvpFdtDevicePathsBase)));
+        StrCat (TextDevicePath, mFdtFallbackName);
+      }
+
       Buffer = PcdSetPtr (PcdFdtDevicePaths, &TextDevicePathSize, TextDevicePath);
       if (Buffer == NULL) {
         DEBUG ((
@@ -91,6 +116,11 @@ ArmFvpInitialise (
           ));
       }
       FreePool (TextDevicePath);
+    } else {
+        DEBUG ((
+          EFI_D_ERROR,
+          "ArmFvpDxe: Setting of FDT device path in PcdFdtDevicePaths failed - %r\n", EFI_OUT_OF_RESOURCES
+          ));
     }
   }
 
