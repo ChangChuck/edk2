@@ -29,8 +29,8 @@
 #include <Protocol/DevicePath.h>
 #include <Protocol/EfiShell.h>
 #include <Protocol/EfiShellDynamicCommand.h>
+#include <Protocol/InstallFdt.h>
 
-#include <Guid/EventGroup.h>
 #include <Guid/Fdt.h>
 
 #include <libfdt.h>
@@ -39,10 +39,10 @@
 // Internal types
 //
 
-STATIC VOID OnEndOfDxe (
-  IN EFI_EVENT  Event,
-  IN VOID       *Context
+STATIC EFI_STATUS InstallFdtRun (
+  IN  INSTALL_FDT_PROTOCOL  *This
   );
+
 STATIC EFI_STATUS RunFdtInstallation (
   VOID
   );
@@ -74,6 +74,10 @@ STATIC SHELL_STATUS EfiCodeToShellCode (
 //
 // Internal variables
 //
+
+STATIC CONST INSTALL_FDT_PROTOCOL mInstallFdtProtocol = {
+  InstallFdtRun
+};
 
 STATIC CONST EFI_SHELL_DYNAMIC_COMMAND_PROTOCOL mShellDynCmdProtocolSetFdt = {
     L"setfdt",                // Name of the command
@@ -113,21 +117,15 @@ FdtPlatformEntryPoint (
   )
 {
   EFI_STATUS  Status;
-  EFI_EVENT   EndOfDxeEvent;
 
   //
-  // Create an event belonging to the "gEfiEndOfDxeEventGroupGuid" group.
-  // The "OnEndOfDxe()" function is declared as the call back function.
-  // It will be called at the end of the DXE phase when an event of the
-  // same group is signalled to inform about the end of the DXE phase.
+  // Install the INSTALL_FDT_PROTOCOL protocol.
   //
-  Status = gBS->CreateEventEx (
-                  EVT_NOTIFY_SIGNAL,
-                  TPL_CALLBACK,
-                  OnEndOfDxe,
-                  NULL,
-                  &gEfiEndOfDxeEventGroupGuid,
-                  &EndOfDxeEvent
+  Status = gBS->InstallMultipleProtocolInterfaces (
+                  &ImageHandle,
+                  &gInstallFdtProtocolGuid,
+                  &mInstallFdtProtocol,
+                  NULL
                   );
 
   if (EFI_ERROR (Status)) {
@@ -185,29 +183,24 @@ FdtPlatformEntryPoint (
 }
 
 /**
-  Notification function of the event defined as belonging to the
-  EFI_END_OF_DXE_EVENT_GROUP_GUID event group that was created in
-  the entry point of the driver.
 
-  This function is called when an event belonging to the
-  EFI_END_OF_DXE_EVENT_GROUP_GUID event group is signalled. Such an
-  event is signalled once at the end of the dispatching of all
-  drivers (end of the so called DXE phase).
+  Run the FDT installation process through the INSTALL_FDT_PROTOCOL
+  protocol.
 
-  @param[in]  Event    Event declared in the entry point of the driver whose
-                       notification function is being invoked.
-  @param[in]  Context  NULL
+  @param  This  A pointer to a INSTALL_FDT_PROTOCOL
+
+  @retval  EFI_SUCCESS            The FDT was installed.
+  @retval  EFI_NOT_FOUND          Failed to locate a protocol or a file.
+  @retval  EFI_INVALID_PARAMETER  Invalid device path.
+  @retval  EFI_UNSUPPORTED        Device path not supported.
+  @retval  EFI_OUT_OF_RESOURCES   An allocation failed.
 
 **/
-STATIC
-VOID
-OnEndOfDxe (
-  IN EFI_EVENT  Event,
-  IN VOID       *Context
+EFI_STATUS InstallFdtRun (
+  IN  INSTALL_FDT_PROTOCOL  *This
   )
 {
-  RunFdtInstallation ();
-  gBS->CloseEvent (Event);
+  return RunFdtInstallation ();
 }
 
 /**

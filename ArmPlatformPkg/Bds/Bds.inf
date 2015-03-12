@@ -36,6 +36,7 @@
   MdeModulePkg/MdeModulePkg.dec
   ArmPkg/ArmPkg.dec
   ArmPlatformPkg/ArmPlatformPkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
 
 [LibraryClasses]
   BdsLib
@@ -56,6 +57,7 @@
 
 [Protocols]
   gEfiBdsArchProtocolGuid
+  gInstallFdtProtocolGuid
   gEfiBlockIoProtocolGuid
   gEfiSimpleTextInProtocolGuid
   gEfiPxeBaseCodeProtocolGuid

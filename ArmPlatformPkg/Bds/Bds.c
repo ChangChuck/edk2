@@ -18,6 +18,7 @@
 #include <Library/PerformanceLib.h>
 
 #include <Protocol/Bds.h>
+#include <Protocol/InstallFdt.h>
 
 #include <Guid/EventGroup.h>
 
@@ -464,12 +465,13 @@ BdsEntry (
   IN EFI_BDS_ARCH_PROTOCOL  *This
   )
 {
-  UINTN               Size;
-  EFI_STATUS          Status;
-  UINT16             *BootNext;
-  UINTN               BootNextSize;
-  CHAR16              BootVariableName[9];
-  EFI_EVENT           EndOfDxeEvent;
+  UINTN                 Size;
+  EFI_STATUS            Status;
+  UINT16                *BootNext;
+  UINTN                 BootNextSize;
+  CHAR16                BootVariableName[9];
+  EFI_EVENT             EndOfDxeEvent;
+  INSTALL_FDT_PROTOCOL  *InstallFdtProtocol;
 
   //
   // Signal EndOfDxe PI Event
@@ -504,6 +506,19 @@ BdsEntry (
   gST->Hdr.CRC32 = 0;
   Status = gBS->CalculateCrc32 ((VOID*)gST, gST->Hdr.HeaderSize, &gST->Hdr.CRC32);
   ASSERT_EFI_ERROR (Status);
+
+  //
+  // Look for the FDT_INSTALL_PROTOCOL and if found, launch the FDT
+  // installation process.
+  //
+  Status = gBS->LocateProtocol (
+                  &gInstallFdtProtocolGuid,
+                  NULL,
+                  (VOID**)&InstallFdtProtocol
+                  );
+  if (!EFI_ERROR (Status)) {
+    InstallFdtProtocol->Run (InstallFdtProtocol);
+  }
 
   // If BootNext environment variable is defined then we just load it !
   BootNextSize = sizeof(UINT16);
