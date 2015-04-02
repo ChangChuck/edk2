@@ -47,6 +47,7 @@
   gEfiMetronomeArchProtocolGuid
   gEfiPxeBaseCodeProtocolGuid
   gEfiDevicePathProtocolGuid
+  gHardwareInterruptProtocolGuid
 
 [FixedPcd]
   gEmbeddedTokenSpaceGuid.PcdLan9118DxeBaseAddress

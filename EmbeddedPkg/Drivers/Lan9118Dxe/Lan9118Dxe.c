@@ -14,6 +14,8 @@
 
 #include "Lan9118Dxe.h"
 
+#include <Protocol/HardwareInterrupt.h>
+
 typedef struct {
   MAC_ADDR_DEVICE_PATH      Lan9118;
   EFI_DEVICE_PATH_PROTOCOL  End;
@@ -34,6 +36,25 @@ LAN9118_DEVICE_PATH Lan9118PathTemplate =  {
     { sizeof(EFI_DEVICE_PATH_PROTOCOL), 0 }
   }
 };
+
+EFI_HARDWARE_INTERRUPT_PROTOCOL *gInterrupt = NULL;
+
+VOID
+EFIAPI
+Lan9118InterruptHandler (
+  IN  HARDWARE_INTERRUPT_SOURCE  Source,
+  IN  EFI_SYSTEM_CONTEXT         SystemContext
+  )
+{
+  EFI_TPL  OriginalTPL;
+
+  OriginalTPL = gBS->RaiseTPL (TPL_HIGH_LEVEL);
+
+//MmioWrite32 (LAN9118_INT_EN , 0        );
+  MmioWrite32 (LAN9118_INT_STS, INSTS_RXE);
+
+  gBS->RestoreTPL (OriginalTPL);
+}
 
 /*
 **  Entry point for the LAN9118 driver
@@ -363,6 +384,14 @@ SnpInitialize (
 
   // Declare the driver as initialized
   Snp->Mode->State = EfiSimpleNetworkInitialized;
+
+  {
+    MmioWrite32 (LAN9118_INT_EN, 0x4000);
+    MmioWrite32 (LAN9118_INT_STS, ~0);
+    MmioWrite32 (LAN9118_IRQ_CFG, 0xA000111);
+    gBS->LocateProtocol (&gHardwareInterruptProtocolGuid, NULL, (VOID **)&gInterrupt);
+    gInterrupt->RegisterInterruptSource (gInterrupt, 192, Lan9118InterruptHandler);
+  }
 
   return Status;
 }
