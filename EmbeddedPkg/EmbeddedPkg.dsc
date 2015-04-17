@@ -289,6 +289,10 @@
   EmbeddedPkg/Drivers/Isp1761UsbDxe/Isp1761UsbDxe.inf
   EmbeddedPkg/Drivers/Lan9118Dxe/Lan9118Dxe.inf
   EmbeddedPkg/Drivers/SataSiI3132Dxe/SataSiI3132Dxe.inf
+  EmbeddedPkg/Drivers/YukonSnpDxe/YukonSnpDxe.inf {
+    <LibraryClasses>
+      TimerLib|MdePkg/Library/BaseTimerLibNullTemplate/BaseTimerLibNullTemplate.inf
+  }
 
 [Components.IA32, Components.X64, Components.IPF, Components.ARM]
   EmbeddedPkg/GdbStub/GdbStub.inf
