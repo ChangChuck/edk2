@@ -789,7 +789,7 @@ GetProfileMemoryIndex (
   if ((UINT32) MemoryType >= MEMORY_TYPE_OS_RESERVED_MIN) {
     return EfiMaxMemoryType;
   } else if ((UINT32) MemoryType >= MEMORY_TYPE_OEM_RESERVED_MIN) {
-    return EfiMaxMemoryType + 1;
+    return (EFI_MEMORY_TYPE)(EfiMaxMemoryType + 1);
   } else {
     return MemoryType;
   }
