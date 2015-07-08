@@ -1166,6 +1166,7 @@ ShellCommandRunIfconfig (
   IN EFI_SYSTEM_TABLE  *SystemTable
   )
 {
+  SHELL_STATUS              ShellStatus;
   EFI_STATUS                Status;
   IFCONFIG_PRIVATE_DATA     *Private;
   LIST_ENTRY                *ParamPackage;
@@ -1179,6 +1180,7 @@ ShellCommandRunIfconfig (
   Status = ShellCommandLineParseEx (mIfConfigCheckList, &ParamPackage, &ProblemParam, TRUE, FALSE);
   if (EFI_ERROR (Status)) {
     ShellPrintHiiEx (-1, -1, NULL, STRING_TOKEN (STR_GEN_PARAM_INV), gShellNetwork1HiiHandle, L"ifconfig", ProblemParam);
+    ShellStatus   = SHELL_INVALID_PARAMETER;
     goto ON_EXIT;
   }
 
@@ -1187,6 +1189,7 @@ ShellCommandRunIfconfig (
   //
   if (ShellCommandLineGetFlag (ParamPackage, L"-c")) {
     ShellPrintHiiEx (-1, -1, NULL, STRING_TOKEN (STR_IFCONFIG_UNSUPPORTED_OPTION), gShellNetwork1HiiHandle,L"-c");
+    ShellStatus   = SHELL_INVALID_PARAMETER;
     goto ON_EXIT;
   }
 
@@ -1196,6 +1199,7 @@ ShellCommandRunIfconfig (
   if (!ShellCommandLineGetFlag (ParamPackage, L"-r") && !ShellCommandLineGetFlag (ParamPackage, L"-s") &&
       !ShellCommandLineGetFlag (ParamPackage, L"-l")) {
     ShellPrintHiiEx (-1, -1, NULL, STRING_TOKEN (STR_IFCONFIG_LACK_OPTION), gShellNetwork1HiiHandle);
+    ShellStatus   = SHELL_INVALID_PARAMETER;
     goto ON_EXIT;
   }
 
@@ -1206,15 +1210,16 @@ ShellCommandRunIfconfig (
       ((ShellCommandLineGetFlag (ParamPackage, L"-r")) && (ShellCommandLineGetFlag (ParamPackage, L"-l"))) ||
       ((ShellCommandLineGetFlag (ParamPackage, L"-s")) && (ShellCommandLineGetFlag (ParamPackage, L"-l")))) {
     ShellPrintHiiEx (-1, -1, NULL, STRING_TOKEN (STR_GEN_PARAM_CON), gShellNetwork1HiiHandle, L"ifconfig");
+    ShellStatus   = SHELL_INVALID_PARAMETER;
     goto ON_EXIT;
   }
 
-  Status = EFI_INVALID_PARAMETER;
+  ShellStatus = SHELL_INVALID_PARAMETER;
 
   Private = AllocateZeroPool (sizeof (IFCONFIG_PRIVATE_DATA));
 
   if (Private == NULL) {
-    Status = EFI_OUT_OF_RESOURCES;
+    ShellStatus = SHELL_OUT_OF_RESOURCES;
     goto ON_EXIT;
   }
 
@@ -1277,6 +1282,15 @@ ShellCommandRunIfconfig (
   // Main process of ifconfig.
   //
   Status = IfConfig (Private);
+  if (!EFI_ERROR (Status)) {
+    ShellStatus = SHELL_SUCCESS;
+  } else if (Status == EFI_ABORTED) {
+    ShellStatus = SHELL_ABORTED;
+  } else if (Status == EFI_OUT_OF_RESOURCES) {
+    ShellStatus = SHELL_OUT_OF_RESOURCES;
+  } else {
+    ShellStatus = SHELL_UNSUPPORTED;
+  }
 
 ON_EXIT:
 
@@ -1286,5 +1300,5 @@ ON_EXIT:
     IfConfigCleanup (Private);
   }
 
-  return Status;
+  return ShellStatus;
 }
