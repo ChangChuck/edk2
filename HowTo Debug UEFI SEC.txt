@@ -1,0 +1,56 @@
+1) Compile the Secure Firmware to be run in DRAM (change the gArmTokenSpaceGuid.PcdSecureFdBaseAddress value from 0xEC000000 (NOR Flash) to 0x20000000 (DRAM))
+
+2) Load the Secure Firmware image in DRAM
+readfile,raw,nowarn "C:\dev\tianocore\Build\ArmVExpress-LTElba\DEBUG_RVCT\FV\SEC_ARMVEXPRESS_EFI.fd"=0x20000000
+setreg @R15=0x20000000
+
+
+3) Compute the offset to load the debug symbols
+
+S:20000000 EB00022A  BL       0x200008B0
+
+
+cd C:\dev\tianocore\Build\ArmVExpress-LTElba\DEBUG_RVCT\ARM\ArmPlatformPkg\Sec\Sec\DEBUG
+fromelf -s ArmPlatformSec.dll > symbols.log
+
+    355  _ModuleEntryPoint          0x00000730   Gb    1  Code  Hi 
+
+
+Offset = 0x200008B0 - 0x00000730 = 0x20000180
+
+4) Load the symbols
+load/ni/np 'C:\dev\tianocore\Build\ArmVExpress-LTElba\DEBUG_RVCT\ARM\ArmPlatformPkg\Sec\Sec\DEBUG\ArmPlatformSec.dll' &0x20000180
+
+
+
+
+
+PrePeiCore:
+S:10000000 EB0001BF  BL       0x10000704
+
+cd C:\dev\tianocore\Build\ArmVExpress-LTElba\DEBUG_RVCT\ARM\ArmPlatformPkg\PrePeiCore\PrePeiCoreMPCore\DEBUG
+fromelf -s ArmPlatformPrePeiCore.dll > symbol.txt
+    295  _ModuleEntryPoint          0x00000584   Gb    1  Code  Hi 
+
+Offset = 0x10000704 - 0x00000584 = 0x10000180
+
+Load symbols:
+load/ni/np 'C:\dev\tianocore\Build\ArmVExpress-LTElba\DEBUG_RVCT\ARM\ArmPlatformPkg\PrePeiCore\PrePeiCoreMPCore\DEBUG\ArmPlatformPrePeiCore.dll' &0x10000180
+
+
+
+readfile,raw,nowarn "C:\dev\tianocore\Build\ArmVExpress-LTElba\DEBUG_RVCT\FV\ArmVExpress_EFI.fd"=0x10000000
+load/ni/np 'C:\dev\tianocore\Build\ArmVExpress-LTElba\DEBUG_RVCT\ARM\ArmPlatformPkg\PrePeiCore\PrePeiCoreMPCore\DEBUG\ArmPlatformPrePeiCore.dll' &0x10000180
+
+
+readfile,raw,nowarn "C:\dev\tianocore\Build\Tuscan\DEBUG_RVCT\FV\Tuscan_EFI.fd"=0x10000000
+
+
+
+
+load/ni/np '/work/tianocore/Build/ArmVExpress-KingFisher/DEBUG_RVCTLINUX/ARM/ArmPlatformPkg/Sec/Sec/DEBUG/ArmPlatformSec.dll' &0x00000180
+load/ni/np '/work/tianocore/Build/ArmVExpress-KingFisher/DEBUG_RVCTLINUX/ARM/ArmPlatformPkg/PrePeiCore/PrePeiCoreMPCore/DEBUG/ArmPlatformPrePeiCore.dll' &0x00020180
+load/ni/np '/work/tianocore/Build/ArmVExpress-KingFisher/DEBUG_RVCTLINUX/ARM/ArmPlatformPkg/PlatformPei/PlatformPeim/DEBUG/PlatformPei.dll' &0x0002C694
+
+SP 0x1401569C
+LR 0x0002D96D

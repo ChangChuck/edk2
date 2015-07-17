@@ -1,0 +1,50 @@
+Building qEmu:
+
+You might need to install libfdt support
+sudo apt-get install libfdt-dev
+
+git clone git://git.qemu.org/qemu.git
+cd qemu
+git checkout v2.2.0-rc4
+./configure --target-list=aarch64-softmmu,arm-softmmu
+make -j9
+
+You should get these two binaries at the end:
+./aarch64-softmmu/qemu-system-aarch64
+./arm-softmmu/qemu-system-arm
+
+
+Building the UEFI firmware
+. edksetup.sh
+make -C BaseTools
+GCC48_AARCH64_PREFIX=/work/gcc-linaro-aarch64-linux-gnu-4.9-2014.09_linux/bin/aarch64-linux-gnu- build -a AARCH64 -t GCC48 -p ArmPlatformPkg/ArmVirtualizationPkg/ArmVirtualizationQemu.dsc
+
+
+Start qEmu with the image:
+qemu-system-aarch64 \
+    -m 1024 \
+    -cpu cortex-a57 \
+    -M virt \
+    -bios Build/ArmVirtualizationQemu-AARCH64/DEBUG_GCC48/FV/QEMU_EFI.fd \
+    -serial stdio
+
+Creating and using a disk image for qEmu:
+mkfs.vfat -C -n UEFI_DISK /tmp/disk.img 131072
+mkdir /tmp/fs
+
+sudo mount -o rw,loop=/dev/loop0,uid=`whoami`,gid=`whoami` /tmp/disk.img /tmp/fs
+cp ~/platform-ci/ap-uefi/data/operating_systems/linux/kernel/v8he2_devplatform/Image /tmp/fs/
+cp ~/platform-ci/data/operating_systems/linux/initramfs/initrd.aarch64 /tmp/fs/
+sudo umount /tmp/fs
+
+qemu-system-aarch64 \
+    -m 1024 \
+    -cpu cortex-a57 \
+    -M virt \
+    -bios Build/ArmVirtualizationQemu-AARCH64/DEBUG_GCC48/FV/QEMU_EFI.fd \
+    -serial stdio \
+    -drive if=none,file=/tmp/disk.img,id=hd0 \
+    -device virtio-blk-device,drive=hd0
+
+Image root=/dev/vda console=ttyAMA0,38400n8 earlycon=pl011,0x9000000 initrd=initrd.aarch64
+

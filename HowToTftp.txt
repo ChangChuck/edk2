@@ -1,0 +1,67 @@
+Permission issue
+
+TFTP services runs as `tftp` user. So ensure the files that are copied into /var/lib/tftpboot belongs to `tftp` user:
+
+	$ ls -l /var/lib/tftpboot/
+	total 12320
+	-rwxr-xr-x 1 tftp tftp  964448 Jun  6  2014 BOOTARM.EFI
+	-rw-r--r-- 1 tftp tftp 7832120 Jun 12  2014 Image
+
+Otherwise changes the owner with `chown -R tftp:tftp /var/lib/tftpboot`
+
+Testing
+
+Before testing on your target platform ensure your TFTP is set properly:
+
+	$ /sbin/ifconfig 
+	eth0      Link encap:Ethernet  HWaddr 00:24:1d:0c:1b:a8  
+		  inet addr:10.1.193.190  Bcast:10.1.193.255  Mask:255.255.255.0
+		  inet6 addr: fe80::224:1dff:fe0c:1ba8/64 Scope:Link
+		  UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+		  RX packets:45512860 errors:1 dropped:7113 overruns:0 frame:1
+		  TX packets:51605028 errors:64 dropped:0 overruns:0 carrier:64
+		  collisions:4814748 txqueuelen:1000 
+		  RX bytes:11330724076 (11.3 GB)  TX bytes:27290467759 (27.2 GB)
+		  Interrupt:16 Memory:fd400000-fd420000 
+	$ tftp -v 10.1.193.190
+	Connected to 10.1.193.190 (10.1.193.190), port 69
+	tftp> get BOOTARM.EFI
+	getting from 10.1.193.190:BOOTARM.EFI to BOOTARM.EFI [netascii]
+	Received 974440 bytes in 0.9 seconds [8487413 bit/s]
+	tftp> quit
+	$ ls -l BOOTARM.EFI 
+	-rw-rw-r-- 1 olivier olivier 964448 Apr 22 12:13 BOOTARM.EFI
+
+Then test on your target platform.
+1. Go to the EFI shell and initialize the ethernet controller
+
+	Shell> ifconfig -s eth0 dhcp
+	Create an IP and start to get the default address
+	Please wait, your console may stop responding for a while ...
+	      Default: 10.1.193.27
+
+2. Ensure you can ping your TTP server
+
+	Shell> ping 10.1.193.190
+	Ping 10.1.193.190 16 data bytes
+	16 bytes from 10.1.193.190 : icmp_seq=1 ttl=0 time<0ms
+	16 bytes from 10.1.193.190 : icmp_seq=2 ttl=0 time<0ms
+	16 bytes from 10.1.193.190 : icmp_seq=3 ttl=0 time<0ms
+	16 bytes from 10.1.193.190 : icmp_seq=4 ttl=0 time<0ms
+
+	4 packets transmitted, 4 received, 0% packet loss, time 0ms
+
+	Rtt(round trip time) min=0ms max=0ms avg=0ms
+
+3. Test the downloading of a file from TFTP
+
+	Shell> FS2:
+	FS2:\> tftp 10.1.193.190 BOOTARM.EFI
+	Downloading the file 'BOOTARM.EFI'
+	[=======================================>]     941 Kb
+	FS2:\> ls 
+	Directory of: FS2:\
+	03/23/2066  18:58             964,448  BOOTARM.EFI
+		  1 File(s)     964,448 bytes
+		  0 Dir(s)
+

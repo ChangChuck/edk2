@@ -1,0 +1,25 @@
+Validation Protocol:
+1) Create two disk images
+
+-------
+mkfs.vfat -C -n IMAGE /tmp/block.dat 131072
+mkdir /tmp/fs
+sudo mount -o rw,loop=/dev/loop0,uid=`whoami`,gid=`whoami` /tmp/block.dat /tmp/fs
+
+cp $EDK2_ROOT/EdkShellBinPkg/FullShell/Arm/Shell_Full.efi /tmp/fs/
+touch /tmp/fs/hello.txt
+
+sudo umount /tmp/fs
+-------
+
+2) qEmu version
+commit c1990468d5a13c8f1d9111fcca0a78a6adad062b
+Author: Michael Roth <mdroth@linux.vnet.ibm.com>
+Date:   Wed May 22 11:32:51 2013 -0500
+
+3) Build OvmfPkg:
+./OvmfPkg/build.sh
+
+4) Run qEmu:
+PATH=/work/qemu/x86_64-softmmu:$PATH  OvmfPkg/build.sh -a X64 qemu  -serial file:serial.log  -debugcon stdio  -global isa-debugcon.iobase=0x402  -drive file=/tmp/block.dat,if=virtio,id=blk  -drive file=/tmp/scsi.dat,if=none,id=scsi  -device virtio-scsi-pci,id=fred -device scsi-hd,drive=scsi -net nic,model=virtio -net user
+

@@ -1,0 +1,193 @@
+=== HowTo Run UEFI SCT ===
+
+Requirements:
+- a USB disk with a FAT32 partition of a size at least 100 MB
+- Download or Build a UEFI SCT package. Note: The latest official SCT can be downloaded from http://uefi.org/testtools
+
+1. Copy the SCT folder (either SctPackageARM` or `SctPackageAArch64`) on a USB drive.
+
+2. Copy a UEFI Shell binary on the USB drive. You can take the one from your EDK2 tree (ie: `$EDK2_ROOT/ShellBinPkg/UefiShell/(Arm|AArch64)/Shell.efi`)
+
+So, on the USB drive you should have:
+- the folder SctPackageAARCH64
+- the file Shell.efi
+
+3. Insert the USB drive into the Juno board and start the board.
+
+4. Go into the Boot manager and "Add Boot Device Entry"
+- Select the USB drive
+- The File path of the EFI application is: Shell.efi
+- Answer 'n' to the question "Is your application an OS loader".
+- And to not give any argument to the new boot entry.
+- You can name your entry "EFI Shell from USB"
+
+	[1] Linux with A57x2
+	[2] Linux with A57x2_A53x4
+	[3] Shell
+	[4] Boot Manager
+	Start: 4
+	[1] Add Boot Device Entry
+	[2] Update Boot Device Entry
+	[3] Remove Boot Device Entry
+	[4] Reorder Boot Device Entries
+	[5] Update FDT path
+	[6] Set Boot Timeout
+	[7] Return to main menu
+	Choice: 1
+	[1] NOR Flash (63 MB)
+	[2] Firmware Volume (0 MB)
+	[3] Firmware Volume (0 MB)
+	[4]  (3814 MB)
+	[5] PXE on MAC Address: 00:02:F7:00:60:61
+	[6] TFTP on MAC Address: 00:02:F7:00:60:61
+	Select the Boot Device: 4
+	File path of the EFI Application or the kernel: Shell.efi
+	Is your application an OS loader? [y/n] n
+	Arguments to pass to the EFI Application: 
+	Description for this new Entry: EFI Shell from USB
+
+5. Reorder the new boot entry to be the first entry in the boot menu.
+To do that you need to go into the Boot Manager and select '[4] Reorder Boot Device Entries'
+Once the entry is the first entry press [Enter] and then [Esc]
+
+	[1] Add Boot Device Entry
+	[2] Update Boot Device Entry
+	[3] Remove Boot Device Entry
+	[4] Reorder Boot Device Entries
+	[5] Update FDT path
+	[6] Set Boot Timeout
+	[7] Return to main menu
+	Choice: 4
+	[1] Linux with A57x2
+	[2] Linux with A57x2_A53x4
+	[3] EFI Shell from USB
+	Move entry: 3
+	* Use up/down arrows to move the entry 'EFI Shell from USB'
+	[1] Linux with A57x2
+	[2] EFI Shell from USB
+	[3] Linux with A57x2_A53x4
+	* Use up/down arrows to move the entry 'EFI Shell from USB'
+	[1] EFI Shell from USB
+	[2] Linux with A57x2
+	[3] Linux with A57x2_A53x4
+	Move entry: 
+	[1] Add Boot Device Entry
+	[2] Update Boot Device Entry
+	[3] Remove Boot Device Entry
+	[4] Reorder Boot Device Entries
+	[5] Update FDT path
+	[6] Set Boot Timeout
+	[7] Return to main menu
+	Choice: 7
+	[1] EFI Shell from USB
+	[2] Linux with A57x2
+	[3] Linux with A57x2_A53x4
+	[4] Shell
+	[5] Boot Manager
+
+6. Return to the main menu and start the new entry '[1] EFI Shell from USB'
+
+	Start: 1
+	UEFI Interactive Shell v2.1
+	EDK II
+	UEFI v2.40 (ARM Juno EFI Apr 17 2015 15:51:21, 0x00000000)
+	Mapping table
+	      FS3: Alias(s):F10:;BLK2:
+		  VenHw(E7223039-5836-41E1-B542-D7EC736C5E59)
+	      FS0: Alias(s):F3:
+		  MemoryMapped(0xB,0xE0000000,0xE00EFFFF)
+	      FS1: Alias(s):F4:
+		  MemoryMapped(0xB,0xFEBC2000,0xFEDC643F)
+	      FS2: Alias(s):HD6a0d0:;BLK0:
+		  PciRoot(0x0)/Pci(0x1,0x0)/USB(0x0,0x0)/USB(0x3,0x0)
+	     BLK1: Alias(s):
+		  VenHw(02118005-9DA7-443A-92D5-781F022AEDBB)
+	Press ESC in 5 seconds to skip startup.nsh or any other key to continue.
+	Shell>
+
+7. Select the USB file system (the one with the device path PciRoot(...)/Pci(0x1,0x0)/USB(0x0,0x0)/USB(0x3,0x0))
+Shell> fs2:
+Go into the directory and start InstallSctArm.efi:
+FS2:\> cd SctPackageAARCH64
+FS2:\SctPackageAARCH64\> InstallSctArm.efi
+
+8. Select the USB drive again (FS2:\)
+
+	  1: FS0: (Free Space: 0 MB)
+	  2: FS1: (Free Space: 0 MB)
+	  3: FS2: (Free Space: 3808 MB)
+	  4: FS3: (Free Space: 55 MB)
+	  Space Required: 100 MB
+	Input index of destination FS. 'q' to exit: 3
+
+9. Once it is completed return to the root directory and go into the SCT directory
+FS2:\SctPackageAARCH64\> cd ..
+FS2:\> cd SCT
+
+10. And start all SCT tests:
+FS2:\SCT\> SCT -a -v
+
+	Installing...
+
+	DONE!
+	FS2:\SctPackageAARCH64\> cd ..
+	FS2:\> ls
+	Directory of: FS2:\
+	03/23/2066  01:35 <DIR>         4,096  SctPackageAARCH64
+	04/20/2015  12:02             949,344  Shell.efi
+	03/23/2066  01:37 <DIR>         4,096  SCT
+	03/23/2066  01:37               3,633  Startup.nsh
+		  2 File(s)     952,977 bytes
+		  2 Dir(s)
+	FS2:\> cd SCT
+	FS2:\SCT\> SCT
+	UEFI2.4B Self Certification Test(SCT2)
+
+	usage:
+	SCT [-a | -c | -s <seq> | -u | -p <MNP | IP4 | SERIAL>] [-r] [-g <report>][-v]
+
+	  -a    Executes all test cases.
+	  -c    Continues execute the test cases.
+	  -g    Generates test report.
+	  -p    Passive Mode with specified communication layer
+	  -r    Resets all test results.
+	  -s    Executes the test cases in the test sequence file.
+	  -u    Turns into user-friendly interface.
+	  -f    Force the operation execution, no confirmation from user.
+	  -v    Verbose function to disable screen output.
+
+	Done!
+	FS2:\SCT\> SCT -a -v
+	Load support files ...
+	Load proxy files ...
+	Load test files ...
+	Test preparing...
+	  Remained test cases: 532
+	  Generic services test: PlatformSpecificElements
+	  Iterations: 1/1
+	  Remained test cases: 531
+	  Generic services test: RequiredElements
+	  Iterations: 1/1
+	  Remained test cases: 530
+	  Boot services test: CheckEvent_Conf
+	  Iterations: 1/1
+	  Remained test cases: 529
+	  Boot services test: CheckEvent_Func
+	  Iterations: 1/1
+
+If SCT seems to be stalled (no activity for 5min) then reboot the platform. SCT should resume its execution
+
+... Once SCT is completed, run `SCT -g` to generate the Test Report
+
+	FS2:\SCT\> SCT -g test.csv
+
+	FS2:\Sct\> ls Report
+	Directory of: FS2:\Sct\Report\
+	03/23/2066  01:36 <DIR>         4,096  .
+	03/23/2066  01:36 <DIR>         4,096  ..
+	03/23/2066  18:27           2,388,880  test.csv
+		  1 File(s)   2,388,880 bytes
+		  2 Dir(s)
+	FS2:\Sct\> 
+
+Insert the USB drive into your host machine and copy the CSV file from [USB_DRIVE]/SCT/Report/report.csv into your machine.
